@@ -83,6 +83,31 @@ function simpsonsThreeEighthsRule(func, a, b, n) {
     };
 }
 
+// Calculate high-precision reference value using Simpson's 1/3 with many intervals
+function calculateReferenceValue(func, a, b) {
+    // Use a high number of intervals for reference (10000 for high precision)
+    const n = 10000;
+    const intervals = n % 2 === 0 ? n : n + 1;
+    const h = (b - a) / intervals;
+    let sum = func(a) + func(b);
+    for (let i = 1; i < intervals; i++) {
+        const x = a + i * h;
+        sum += (i % 2 === 0 ? 2 : 4) * func(x);
+    }
+    return (h / 3) * sum;
+}
+
+// Calculate error metrics
+function calculateError(numericalValue, exactValue) {
+    const absoluteError = Math.abs(numericalValue - exactValue);
+    const relativeError = exactValue !== 0 ? Math.abs((numericalValue - exactValue) / exactValue) * 100 : absoluteError;
+    return {
+        absolute: absoluteError,
+        relative: relativeError,
+        exactValue: exactValue
+    };
+}
+
 function getTrapezoidalViz(func, a, b, n) {
     const h = (b - a) / n;
     const areas = [];
@@ -147,7 +172,8 @@ let state = {
     intervals: 10,
     results: new Map(),
     visualizations: new Map(),
-    activeVizMethod: null
+    activeVizMethod: null,
+    referenceValue: null
 };
 
 const elements = {
@@ -160,6 +186,9 @@ const elements = {
     methodSimpson38: document.getElementById('methodSimpson38'),
     calculateBtn: document.getElementById('calculateBtn'),
     resetBtn: document.getElementById('resetBtn'),
+    docsBtn: document.getElementById('docsBtn'),
+    docsModal: document.getElementById('docsModal'),
+    closeDocsBtn: document.getElementById('closeDocsBtn'),
     errorDisplay: document.getElementById('errorDisplay'),
     errorMessage: document.getElementById('errorMessage'),
     emptyState: document.getElementById('emptyState'),
@@ -174,6 +203,13 @@ const elements = {
     detailedIntervalsBox: document.getElementById('detailedIntervalsBox'),
     detailedIntervalsValue: document.getElementById('detailedIntervalsValue'),
     detailedTimeValue: document.getElementById('detailedTimeValue'),
+    detailedErrorBox: document.getElementById('detailedErrorBox'),
+    detailedExactValue: document.getElementById('detailedExactValue'),
+    detailedAbsoluteError: document.getElementById('detailedAbsoluteError'),
+    detailedRelativeError: document.getElementById('detailedRelativeError'),
+    errorChartContainer: document.getElementById('errorChartContainer'),
+    errorCanvas: document.getElementById('errorCanvas'),
+    showErrorChartBtn: document.getElementById('showErrorChartBtn'),
     exportBtn: document.getElementById('exportBtn')
 };
 
@@ -317,12 +353,19 @@ function updateUI() {
             const div = document.createElement('div');
             div.className = 'p-4 bg-secondary rounded-lg border border-border cursor-pointer transition-all hover:border-primary';
             div.onclick = () => showDetailedResult(method);
+            const errorInfo = res.error ? `
+                <div class="mt-2 pt-2 border-t border-border">
+                    <p class="text-xs text-muted-foreground">Absolute Error: <span class="text-foreground font-mono">${res.error.absolute.toExponential(3)}</span></p>
+                    <p class="text-xs text-muted-foreground">Relative Error: <span class="text-foreground font-mono">${res.error.relative.toFixed(4)}%</span></p>
+                </div>
+            ` : '';
             div.innerHTML = `
                 <p class="text-xs uppercase tracking-wide text-muted-foreground mb-2">${res.method}</p>
                 <p class="text-2xl font-bold font-mono text-primary mb-3">${res.result.toFixed(8)}</p>
                 <div class="space-y-1 text-xs text-muted-foreground">
                     ${res.intervals ? `<p>Intervals: ${res.intervals}</p>` : ''}
                     <p>Time: ${res.executionTime.toFixed(2)}ms</p>
+                    ${errorInfo}
                 </div>
             `;
             elements.resultsSummary.appendChild(div);
@@ -347,6 +390,22 @@ function showDetailedResult(method) {
         elements.detailedIntervalsBox.classList.add('hidden');
     }
     elements.detailedTimeValue.textContent = res.executionTime.toFixed(2) + 'ms';
+    
+    // Update error information if available
+    if (res.error && elements.detailedErrorBox) {
+        elements.detailedErrorBox.classList.remove('hidden');
+        if (elements.detailedAbsoluteError) {
+            elements.detailedAbsoluteError.textContent = res.error.absolute.toExponential(6);
+        }
+        if (elements.detailedRelativeError) {
+            elements.detailedRelativeError.textContent = res.error.relative.toFixed(6) + '%';
+        }
+        if (elements.detailedExactValue) {
+            elements.detailedExactValue.textContent = res.error.exactValue.toFixed(10);
+        }
+    } else if (elements.detailedErrorBox) {
+        elements.detailedErrorBox.classList.add('hidden');
+    }
 }
 
 function calculate() {
@@ -368,16 +427,26 @@ function calculate() {
         const f = (x) => evaluateFunction(expr, x);
         f(a);
 
+        // Calculate reference value for error estimation
+        const referenceValue = calculateReferenceValue(f, a, b);
+        state.referenceValue = referenceValue;
+
         if (elements.methodTrapezoidal.checked) {
-            state.results.set('trapezoidal', trapezoidalRule(f, a, b, n));
+            const result = trapezoidalRule(f, a, b, n);
+            result.error = calculateError(result.result, referenceValue);
+            state.results.set('trapezoidal', result);
             state.visualizations.set('trapezoidal', getTrapezoidalViz(f, a, b, n));
         }
         if (elements.methodSimpson13.checked) {
-            state.results.set('simpson13', simpsonsOneThirdRule(f, a, b, n));
+            const result = simpsonsOneThirdRule(f, a, b, n);
+            result.error = calculateError(result.result, referenceValue);
+            state.results.set('simpson13', result);
             state.visualizations.set('simpson13', getSimpsonsOneThirdViz(f, a, b, n));
         }
         if (elements.methodSimpson38.checked) {
-            state.results.set('simpson38', simpsonsThreeEighthsRule(f, a, b, n));
+            const result = simpsonsThreeEighthsRule(f, a, b, n);
+            result.error = calculateError(result.result, referenceValue);
+            state.results.set('simpson38', result);
             state.visualizations.set('simpson38', getSimpsonsThreeEighthsViz(f, a, b, n));
         }
 
@@ -387,6 +456,13 @@ function calculate() {
 
         state.activeVizMethod = Array.from(state.visualizations.keys())[0];
         updateUI();
+        
+        // Show error chart button if results are available
+        if (state.results.size > 0 && state.referenceValue && elements.showErrorChartBtn) {
+            elements.showErrorChartBtn.style.display = 'block';
+        } else if (elements.showErrorChartBtn) {
+            elements.showErrorChartBtn.style.display = 'none';
+        }
     } catch (error) {
         elements.errorMessage.textContent = error.message;
         elements.errorDisplay.classList.remove('hidden');
@@ -469,14 +545,138 @@ window.analyzeConvergence = function(method) {
     });
 };
 
+window.drawErrorChart = function() {
+    if (state.results.size === 0 || !state.referenceValue) {
+        if (elements.errorChartContainer) {
+            elements.errorChartContainer.classList.add('hidden');
+        }
+        return;
+    }
+    
+    const container = elements.errorChartContainer;
+    if (!container) return;
+    container.classList.remove('hidden');
+    const canvas = elements.errorCanvas;
+    const ctx = canvas.getContext('2d');
+    const rect = container.getBoundingClientRect();
+    canvas.width = rect.width;
+    canvas.height = 256;
+
+    // Prepare data
+    const errorData = [];
+    const methodNames = [];
+    const colors = {
+        'trapezoidal': '#66ccff',
+        'simpson13': '#66ff99',
+        'simpson38': '#ff9966'
+    };
+
+    state.results.forEach((res, method) => {
+        if (res.error) {
+            errorData.push({
+                method: res.method,
+                absoluteError: res.error.absolute,
+                relativeError: res.error.relative,
+                color: colors[method] || '#66ccff'
+            });
+            methodNames.push(res.method);
+        }
+    });
+
+    if (errorData.length === 0) return;
+
+    ctx.fillStyle = '#1a2332';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    const padding = 60;
+    const chartWidth = canvas.width - 2 * padding;
+    const chartHeight = canvas.height - 2 * padding;
+    const barWidth = chartWidth / errorData.length * 0.7;
+    const barSpacing = chartWidth / errorData.length;
+
+    // Find max error for scaling
+    const maxError = Math.max(...errorData.map(d => d.absoluteError));
+    const minError = 0;
+    const errorRange = maxError - minError || 1;
+    const scale = chartHeight / errorRange;
+
+    // Draw grid lines
+    ctx.strokeStyle = 'rgba(102, 204, 255, 0.1)';
+    ctx.lineWidth = 1;
+    for (let i = 0; i <= 5; i++) {
+        const y = padding + (i / 5) * chartHeight;
+        ctx.beginPath();
+        ctx.moveTo(padding, y);
+        ctx.lineTo(canvas.width - padding, y);
+        ctx.stroke();
+    }
+
+    // Draw axes
+    ctx.strokeStyle = '#66ccff';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(padding, padding);
+    ctx.lineTo(padding, canvas.height - padding);
+    ctx.lineTo(canvas.width - padding, canvas.height - padding);
+    ctx.stroke();
+
+    // Draw bars
+    errorData.forEach((data, i) => {
+        const x = padding + i * barSpacing + (barSpacing - barWidth) / 2;
+        const barHeight = data.absoluteError * scale;
+        const y = canvas.height - padding - barHeight;
+
+        // Draw bar
+        ctx.fillStyle = data.color;
+        ctx.fillRect(x, y, barWidth, barHeight);
+
+        // Draw value on top
+        ctx.fillStyle = '#b8c5d6';
+        ctx.font = '10px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText(data.absoluteError.toExponential(2), x + barWidth / 2, y - 5);
+
+        // Draw method name
+        ctx.fillStyle = '#b8c5d6';
+        ctx.font = '10px monospace';
+        ctx.textAlign = 'center';
+        const methodLabel = data.method.replace("Simpson's ", "S. ").replace(" Rule", "");
+        ctx.fillText(methodLabel, x + barWidth / 2, canvas.height - padding + 15);
+    });
+
+    // Draw y-axis labels
+    ctx.fillStyle = '#b8c5d6';
+    ctx.font = '10px monospace';
+    ctx.textAlign = 'right';
+    for (let i = 0; i <= 5; i++) {
+        const value = maxError - (i / 5) * errorRange;
+        const y = padding + (i / 5) * chartHeight;
+        ctx.fillText(value.toExponential(2), padding - 10, y + 3);
+    }
+
+    // Draw title
+    ctx.fillStyle = '#b8c5d6';
+    ctx.font = '12px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('Absolute Error Comparison', canvas.width / 2, 20);
+};
+
 function exportResults() {
     const data = {
         timestamp: new Date().toISOString(),
+        function: state.functionExpr,
+        bounds: { lower: state.lowerBound, upper: state.upperBound },
+        referenceValue: state.referenceValue,
         results: Array.from(state.results.entries()).map(([key, res]) => ({
             method: res.method,
             result: res.result,
             intervals: res.intervals,
-            executionTime: res.executionTime
+            executionTime: res.executionTime,
+            error: res.error ? {
+                absolute: res.error.absolute,
+                relative: res.error.relative,
+                exactValue: res.error.exactValue
+            } : null
         }))
     };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -491,5 +691,32 @@ function exportResults() {
 elements.calculateBtn.onclick = calculate;
 elements.resetBtn.onclick = reset;
 elements.exportBtn.onclick = exportResults;
+
+// Documentation modal handlers
+elements.docsBtn.onclick = () => {
+    elements.docsModal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+};
+
+elements.closeDocsBtn.onclick = () => {
+    elements.docsModal.classList.add('hidden');
+    document.body.style.overflow = '';
+};
+
+// Close modal when clicking outside
+elements.docsModal.onclick = (e) => {
+    if (e.target === elements.docsModal) {
+        elements.docsModal.classList.add('hidden');
+        document.body.style.overflow = '';
+    }
+};
+
+// Close modal with Escape key
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !elements.docsModal.classList.contains('hidden')) {
+        elements.docsModal.classList.add('hidden');
+        document.body.style.overflow = '';
+    }
+});
 
 updateUI();
