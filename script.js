@@ -1,18 +1,18 @@
 function evaluateFunction(expression, x) {
     try {
         let expr = expression
-            .replace(/π/g, Math.PI.toString())
-            .replace(/e/g, Math.E.toString())
-            .replace(/sin/g, 'Math.sin')
-            .replace(/cos/g, 'Math.cos')
-            .replace(/tan/g, 'Math.tan')
-            .replace(/sqrt/g, 'Math.sqrt')
-            .replace(/exp/g, 'Math.exp')
-            .replace(/log/g, 'Math.log')
-            .replace(/ln/g, 'Math.log')
-            .replace(/abs/g, 'Math.abs')
+            .replace(/\bexp\b/g, 'Math.exp')
+            .replace(/\blog\b/g, 'Math.log')
+            .replace(/\bln\b/g, 'Math.log')
+            .replace(/\bsin\b/g, 'Math.sin')
+            .replace(/\bcos\b/g, 'Math.cos')
+            .replace(/\btan\b/g, 'Math.tan')
+            .replace(/\bsqrt\b/g, 'Math.sqrt')
+            .replace(/\babs\b/g, 'Math.abs')
+            .replace(/\bπ\b/g, Math.PI.toString())
+            .replace(/\be\b/g, Math.E.toString())
             .replace(/\^/g, '**')
-            .replace(/x/g, `(${x})`);
+            .replace(/\bx\b/g, `(${x})`);
 
         const func = new Function('Math', `return ${expr}`);
         const result = func(Math);
