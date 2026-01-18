@@ -83,9 +83,7 @@ function simpsonsThreeEighthsRule(func, a, b, n) {
     };
 }
 
-// Calculate high-precision reference value using Simpson's 1/3 with many intervals
 function calculateReferenceValue(func, a, b) {
-    // Use a high number of intervals for reference (10000 for high precision)
     const n = 10000;
     const intervals = n % 2 === 0 ? n : n + 1;
     const h = (b - a) / intervals;
@@ -97,7 +95,6 @@ function calculateReferenceValue(func, a, b) {
     return (h / 3) * sum;
 }
 
-// Calculate error metrics
 function calculateError(numericalValue, exactValue) {
     const absoluteError = Math.abs(numericalValue - exactValue);
     const relativeError = exactValue !== 0 ? Math.abs((numericalValue - exactValue) / exactValue) * 100 : absoluteError;
@@ -176,6 +173,52 @@ let state = {
     referenceValue: null
 };
 
+// Real-world example scenarios
+const exampleScenarios = {
+    area_parabola: {
+        function: 'x**2',
+        lowerBound: 0,
+        upperBound: 2,
+        intervals: 20,
+        description: 'Area under parabola y = x² from 0 to 2'
+    },
+    volume_sphere: {
+        function: '1 - x**2',
+        lowerBound: 0,
+        upperBound: 1,
+        intervals: 20,
+        description: 'Volume of sphere (multiply result by π)'
+    },
+    work_force: {
+        function: 'x**2',
+        lowerBound: 0,
+        upperBound: 5,
+        intervals: 20,
+        description: 'Work done by force F(x) = x² (in Joules)'
+    },
+    spring_energy: {
+        function: '10*x',
+        lowerBound: 0,
+        upperBound: 0.5,
+        intervals: 10,
+        description: 'Spring potential energy (k=10 N/m, x=0.5m)'
+    },
+    distance_velocity: {
+        function: '2*x + 3',
+        lowerBound: 0,
+        upperBound: 10,
+        intervals: 20,
+        description: 'Distance traveled with velocity v(t) = 2t + 3'
+    },
+    fluid_flow: {
+        function: '1 - x**2',
+        lowerBound: 0,
+        upperBound: 1,
+        intervals: 20,
+        description: 'Fluid flow rate with velocity profile v(r) = 1 - r²'
+    }
+};
+
 const elements = {
     functionInput: document.getElementById('functionInput'),
     lowerBound: document.getElementById('lowerBound'),
@@ -184,6 +227,8 @@ const elements = {
     methodTrapezoidal: document.getElementById('methodTrapezoidal'),
     methodSimpson13: document.getElementById('methodSimpson13'),
     methodSimpson38: document.getElementById('methodSimpson38'),
+    exampleSelector: document.getElementById('exampleSelector'),
+    loadExampleBtn: document.getElementById('loadExampleBtn'),
     calculateBtn: document.getElementById('calculateBtn'),
     resetBtn: document.getElementById('resetBtn'),
     docsBtn: document.getElementById('docsBtn'),
@@ -391,7 +436,6 @@ function showDetailedResult(method) {
     }
     elements.detailedTimeValue.textContent = res.executionTime.toFixed(2) + 'ms';
     
-    // Update error information if available
     if (res.error && elements.detailedErrorBox) {
         elements.detailedErrorBox.classList.remove('hidden');
         if (elements.detailedAbsoluteError) {
@@ -427,7 +471,6 @@ function calculate() {
         const f = (x) => evaluateFunction(expr, x);
         f(a);
 
-        // Calculate reference value for error estimation
         const referenceValue = calculateReferenceValue(f, a, b);
         state.referenceValue = referenceValue;
 
@@ -562,7 +605,6 @@ window.drawErrorChart = function() {
     canvas.width = rect.width;
     canvas.height = 256;
 
-    // Prepare data
     const errorData = [];
     const methodNames = [];
     const colors = {
@@ -594,13 +636,11 @@ window.drawErrorChart = function() {
     const barWidth = chartWidth / errorData.length * 0.7;
     const barSpacing = chartWidth / errorData.length;
 
-    // Find max error for scaling
     const maxError = Math.max(...errorData.map(d => d.absoluteError));
     const minError = 0;
     const errorRange = maxError - minError || 1;
     const scale = chartHeight / errorRange;
 
-    // Draw grid lines
     ctx.strokeStyle = 'rgba(102, 204, 255, 0.1)';
     ctx.lineWidth = 1;
     for (let i = 0; i <= 5; i++) {
@@ -626,7 +666,6 @@ window.drawErrorChart = function() {
         const barHeight = data.absoluteError * scale;
         const y = canvas.height - padding - barHeight;
 
-        // Draw bar
         ctx.fillStyle = data.color;
         ctx.fillRect(x, y, barWidth, barHeight);
 
@@ -636,7 +675,6 @@ window.drawErrorChart = function() {
         ctx.textAlign = 'center';
         ctx.fillText(data.absoluteError.toExponential(2), x + barWidth / 2, y - 5);
 
-        // Draw method name
         ctx.fillStyle = '#b8c5d6';
         ctx.font = '10px monospace';
         ctx.textAlign = 'center';
@@ -644,7 +682,6 @@ window.drawErrorChart = function() {
         ctx.fillText(methodLabel, x + barWidth / 2, canvas.height - padding + 15);
     });
 
-    // Draw y-axis labels
     ctx.fillStyle = '#b8c5d6';
     ctx.font = '10px monospace';
     ctx.textAlign = 'right';
@@ -654,7 +691,6 @@ window.drawErrorChart = function() {
         ctx.fillText(value.toExponential(2), padding - 10, y + 3);
     }
 
-    // Draw title
     ctx.fillStyle = '#b8c5d6';
     ctx.font = '12px monospace';
     ctx.textAlign = 'center';
@@ -692,7 +728,32 @@ elements.calculateBtn.onclick = calculate;
 elements.resetBtn.onclick = reset;
 elements.exportBtn.onclick = exportResults;
 
-// Documentation modal handlers
+elements.loadExampleBtn.onclick = () => {
+    const exampleId = elements.exampleSelector.value;
+    if (!exampleId || !exampleScenarios[exampleId]) return;
+    
+    const example = exampleScenarios[exampleId];
+    elements.functionInput.value = example.function;
+    elements.lowerBound.value = example.lowerBound;
+    elements.upperBound.value = example.upperBound;
+    elements.intervalsInput.value = example.intervals;
+    
+    const notification = document.createElement('div');
+    notification.className = 'fixed top-20 right-4 bg-card border border-border rounded-lg p-3 shadow-lg z-50';
+    notification.innerHTML = `
+        <p class="text-sm font-semibold text-foreground">Example Loaded</p>
+        <p class="text-xs text-muted-foreground mt-1">${example.description}</p>
+    `;
+    document.body.appendChild(notification);
+    setTimeout(() => {
+        notification.style.opacity = '0';
+        notification.style.transition = 'opacity 0.3s';
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
+    
+    elements.exampleSelector.value = '';
+};
+
 elements.docsBtn.onclick = () => {
     elements.docsModal.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
@@ -703,7 +764,6 @@ elements.closeDocsBtn.onclick = () => {
     document.body.style.overflow = '';
 };
 
-// Close modal when clicking outside
 elements.docsModal.onclick = (e) => {
     if (e.target === elements.docsModal) {
         elements.docsModal.classList.add('hidden');
@@ -711,7 +771,6 @@ elements.docsModal.onclick = (e) => {
     }
 };
 
-// Close modal with Escape key
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && !elements.docsModal.classList.contains('hidden')) {
         elements.docsModal.classList.add('hidden');

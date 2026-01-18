@@ -103,6 +103,25 @@
                 <button id="calculateBtn" class="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3 rounded-lg transition-colors flex items-center justify-center gap-2">
                     Calculate
                 </button>
+
+                <div class="bg-card border border-border rounded-lg p-6">
+                    <h2 class="text-lg font-bold mb-1">Real-World Examples</h2>
+                    <p class="text-sm text-muted-foreground mb-4">Quick-load practical scenarios</p>
+                    <div class="space-y-2">
+                        <select id="exampleSelector" class="w-full font-mono text-sm bg-input border border-border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary">
+                            <option value="">Select an example...</option>
+                            <option value="area_parabola">Area: Parabola (x² from 0 to 2)</option>
+                            <option value="volume_sphere">Volume: Sphere (1-x² from 0 to 1)</option>
+                            <option value="work_force">Physics: Work by variable force (x² from 0 to 5)</option>
+                            <option value="spring_energy">Physics: Spring energy (10x from 0 to 0.5)</option>
+                            <option value="distance_velocity">Physics: Distance traveled (2x+3 from 0 to 10)</option>
+                            <option value="fluid_flow">Engineering: Fluid flow (1-x² from 0 to 1)</option>
+                        </select>
+                        <button id="loadExampleBtn" class="w-full px-4 py-2 border border-border rounded text-sm hover:bg-secondary transition-colors">
+                            Load Example
+                        </button>
+                    </div>
+                </div>
             </div>
 
             <div class="lg:col-span-2 space-y-6">
@@ -206,7 +225,6 @@
         </div>
     </main>
 
-    <!-- Documentation Modal -->
     <div id="docsModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-black/50 backdrop-blur-sm">
         <div class="flex items-center justify-center min-h-screen p-4">
             <div class="bg-card border border-border rounded-lg max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
@@ -232,7 +250,6 @@
                         </div>
                     </section>
 
-                    <!-- Function Syntax -->
                     <section>
                         <h3 class="text-xl font-bold mb-4 text-primary">Function Syntax</h3>
                         <div class="bg-secondary rounded-lg p-4 space-y-3">
@@ -268,7 +285,6 @@
                         </div>
                     </section>
 
-                    <!-- Theory: Trapezoidal Rule -->
                     <section>
                         <h3 class="text-xl font-bold mb-4 text-primary">Theory: Trapezoidal Rule</h3>
                         <div class="space-y-4 text-sm text-muted-foreground">
@@ -299,7 +315,6 @@
                         </div>
                     </section>
 
-                    <!-- Theory: Simpson's 1/3 Rule -->
                     <section>
                         <h3 class="text-xl font-bold mb-4 text-primary">Theory: Simpson's 1/3 Rule</h3>
                         <div class="space-y-4 text-sm text-muted-foreground">
@@ -331,7 +346,6 @@
                         </div>
                     </section>
 
-                    <!-- Theory: Simpson's 3/8 Rule -->
                     <section>
                         <h3 class="text-xl font-bold mb-4 text-primary">Theory: Simpson's 3/8 Rule</h3>
                         <div class="space-y-4 text-sm text-muted-foreground">
@@ -420,7 +434,6 @@
                         </div>
                     </section>
 
-                    <!-- Tips for Effective Use -->
                     <section>
                         <h3 class="text-xl font-bold mb-4 text-primary">Tips for Effective Use</h3>
                         <div class="space-y-3 text-sm text-muted-foreground">
@@ -482,6 +495,219 @@
                                     <li>Use Simpson's methods for smooth functions</li>
                                     <li>Use Convergence Analysis to find optimal interval count</li>
                                     <li>Compare results from different methods to verify accuracy</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section>
+                        <h3 class="text-xl font-bold mb-4 text-primary">Real-World Applications</h3>
+                        <div class="space-y-6 text-sm text-muted-foreground">
+                            <p>Numerical integration is essential in many fields where exact analytical solutions are difficult or impossible. Here are practical examples you can try:</p>
+
+                            <div class="bg-secondary rounded-lg p-4">
+                                <h4 class="font-semibold text-foreground mb-3 flex items-center gap-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/></svg>
+                                    Area Calculations
+                                </h4>
+                                <p class="mb-3">Calculate the area under curves or between curves:</p>
+                                
+                                <div class="bg-input rounded p-3 mb-3">
+                                    <p class="font-semibold text-foreground mb-2">Example: Area under a parabola</p>
+                                    <p class="mb-2">Find the area under y = x² from x = 0 to x = 2</p>
+                                    <ul class="space-y-1 ml-4 text-xs">
+                                        <li><strong class="text-foreground">Function:</strong> <code class="bg-card px-1 py-0.5 rounded font-mono">x**2</code></li>
+                                        <li><strong class="text-foreground">Bounds:</strong> 0 to 2</li>
+                                        <li><strong class="text-foreground">Expected:</strong> 8/3 ≈ 2.667</li>
+                                        <li><strong class="text-foreground">Application:</strong> Land surveying, construction planning</li>
+                                    </ul>
+                                </div>
+
+                                <div class="bg-input rounded p-3">
+                                    <p class="font-semibold text-foreground mb-2">Example: Area between curves</p>
+                                    <p class="mb-2">Area between y = x² and y = x from x = 0 to x = 1</p>
+                                    <ul class="space-y-1 ml-4 text-xs">
+                                        <li><strong class="text-foreground">Function:</strong> <code class="bg-card px-1 py-0.5 rounded font-mono">x - x**2</code></li>
+                                        <li><strong class="text-foreground">Bounds:</strong> 0 to 1</li>
+                                        <li><strong class="text-foreground">Expected:</strong> 1/6 ≈ 0.167</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- Volume Calculations -->
+                            <div class="bg-secondary rounded-lg p-4">
+                                <h4 class="font-semibold text-foreground mb-3 flex items-center gap-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+                                    Volume Calculations
+                                </h4>
+                                <p class="mb-3">Calculate volumes of revolution using the disk/washer method:</p>
+                                
+                                <div class="bg-input rounded p-3 mb-3">
+                                    <p class="font-semibold text-foreground mb-2">Example: Volume of a sphere (radius = 1)</p>
+                                    <p class="mb-2">Volume = π ∫₀¹ (1 - x²) dx (rotating y = √(1-x²) around x-axis)</p>
+                                    <ul class="space-y-1 ml-4 text-xs">
+                                        <li><strong class="text-foreground">Function:</strong> <code class="bg-card px-1 py-0.5 rounded font-mono">1 - x**2</code></li>
+                                        <li><strong class="text-foreground">Bounds:</strong> 0 to 1</li>
+                                        <li><strong class="text-foreground">Multiply by:</strong> π to get volume</li>
+                                        <li><strong class="text-foreground">Expected:</strong> π × (2/3) ≈ 2.094</li>
+                                        <li><strong class="text-foreground">Application:</strong> Manufacturing, container design</li>
+                                    </ul>
+                                </div>
+
+                                <div class="bg-input rounded p-3">
+                                    <p class="font-semibold text-foreground mb-2">Example: Volume of a cone</p>
+                                    <p class="mb-2">Rotating y = x from x = 0 to x = h around x-axis</p>
+                                    <ul class="space-y-1 ml-4 text-xs">
+                                        <li><strong class="text-foreground">Function:</strong> <code class="bg-card px-1 py-0.5 rounded font-mono">x**2</code> (for height h=1)</li>
+                                        <li><strong class="text-foreground">Bounds:</strong> 0 to 1</li>
+                                        <li><strong class="text-foreground">Multiply by:</strong> π</li>
+                                        <li><strong class="text-foreground">Expected:</strong> π/3 ≈ 1.047</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="bg-secondary rounded-lg p-4">
+                                <h4 class="font-semibold text-foreground mb-3 flex items-center gap-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                                    Physics: Work and Energy
+                                </h4>
+                                
+                                <div class="bg-input rounded p-3 mb-3">
+                                    <p class="font-semibold text-foreground mb-2">Example: Work done by a variable force</p>
+                                    <p class="mb-2">Work = ∫ F(x) dx. Calculate work done by force F(x) = x² from x = 0 to x = 5 meters</p>
+                                    <ul class="space-y-1 ml-4 text-xs">
+                                        <li><strong class="text-foreground">Function:</strong> <code class="bg-card px-1 py-0.5 rounded font-mono">x**2</code></li>
+                                        <li><strong class="text-foreground">Bounds:</strong> 0 to 5</li>
+                                        <li><strong class="text-foreground">Expected:</strong> 125/3 ≈ 41.67 Joules</li>
+                                        <li><strong class="text-foreground">Application:</strong> Mechanical engineering, robotics</li>
+                                    </ul>
+                                </div>
+
+                                <div class="bg-input rounded p-3 mb-3">
+                                    <p class="font-semibold text-foreground mb-2">Example: Potential energy stored in a spring</p>
+                                    <p class="mb-2">Energy = ∫₀ˣ kx dx = ½kx². For k=10 N/m, compressed 0.5m</p>
+                                    <ul class="space-y-1 ml-4 text-xs">
+                                        <li><strong class="text-foreground">Function:</strong> <code class="bg-card px-1 py-0.5 rounded font-mono">10*x</code></li>
+                                        <li><strong class="text-foreground">Bounds:</strong> 0 to 0.5</li>
+                                        <li><strong class="text-foreground">Expected:</strong> 1.25 Joules</li>
+                                    </ul>
+                                </div>
+
+                                <div class="bg-input rounded p-3">
+                                    <p class="font-semibold text-foreground mb-2">Example: Distance traveled with variable velocity</p>
+                                    <p class="mb-2">Distance = ∫ v(t) dt. For v(t) = 2t + 3 from t = 0 to t = 10 seconds</p>
+                                    <ul class="space-y-1 ml-4 text-xs">
+                                        <li><strong class="text-foreground">Function:</strong> <code class="bg-card px-1 py-0.5 rounded font-mono">2*x + 3</code></li>
+                                        <li><strong class="text-foreground">Bounds:</strong> 0 to 10</li>
+                                        <li><strong class="text-foreground">Expected:</strong> 130 meters</li>
+                                        <li><strong class="text-foreground">Application:</strong> Motion analysis, GPS tracking</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="bg-secondary rounded-lg p-4">
+                                <h4 class="font-semibold text-foreground mb-3 flex items-center gap-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                                    Engineering Applications
+                                </h4>
+                                
+                                <div class="bg-input rounded p-3 mb-3">
+                                    <p class="font-semibold text-foreground mb-2">Example: Total charge in an electric field</p>
+                                    <p class="mb-2">Charge = ∫ ρ(x) dx. For charge density ρ(x) = e^(-x) from x = 0 to x = 5</p>
+                                    <ul class="space-y-1 ml-4 text-xs">
+                                        <li><strong class="text-foreground">Function:</strong> <code class="bg-card px-1 py-0.5 rounded font-mono">exp(-x)</code></li>
+                                        <li><strong class="text-foreground">Bounds:</strong> 0 to 5</li>
+                                        <li><strong class="text-foreground">Expected:</strong> 1 - e^(-5) ≈ 0.993</li>
+                                        <li><strong class="text-foreground">Application:</strong> Electronics, circuit design</li>
+                                    </ul>
+                                </div>
+
+                                <div class="bg-input rounded p-3 mb-3">
+                                    <p class="font-semibold text-foreground mb-2">Example: Center of mass calculation</p>
+                                    <p class="mb-2">For a rod with linear density λ(x) = x² from x = 0 to x = L</p>
+                                    <ul class="space-y-1 ml-4 text-xs">
+                                        <li><strong class="text-foreground">Function:</strong> <code class="bg-card px-1 py-0.5 rounded font-mono">x**2</code></li>
+                                        <li><strong class="text-foreground">Bounds:</strong> 0 to 1 (normalized)</li>
+                                        <li><strong class="text-foreground">Application:</strong> Structural engineering, balance calculations</li>
+                                    </ul>
+                                </div>
+
+                                <div class="bg-input rounded p-3">
+                                    <p class="font-semibold text-foreground mb-2">Example: Fluid flow rate</p>
+                                    <p class="mb-2">Flow rate = ∫ v(r) dA. For velocity profile v(r) = 1 - r² in a pipe (r = 0 to 1)</p>
+                                    <ul class="space-y-1 ml-4 text-xs">
+                                        <li><strong class="text-foreground">Function:</strong> <code class="bg-card px-1 py-0.5 rounded font-mono">1 - x**2</code></li>
+                                        <li><strong class="text-foreground">Bounds:</strong> 0 to 1</li>
+                                        <li><strong class="text-foreground">Expected:</strong> 2/3 ≈ 0.667</li>
+                                        <li><strong class="text-foreground">Application:</strong> Hydraulics, HVAC systems</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- Statistics and Probability -->
+                            <div class="bg-secondary rounded-lg p-4">
+                                <h4 class="font-semibold text-foreground mb-3 flex items-center gap-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                                    Statistics and Probability
+                                </h4>
+                                
+                                <div class="bg-input rounded p-3 mb-3">
+                                    <p class="font-semibold text-foreground mb-2">Example: Probability from probability density function</p>
+                                    <p class="mb-2">P(a ≤ X ≤ b) = ∫ f(x) dx. For normal distribution approximation f(x) = e^(-x²/2)</p>
+                                    <ul class="space-y-1 ml-4 text-xs">
+                                        <li><strong class="text-foreground">Function:</strong> <code class="bg-card px-1 py-0.5 rounded font-mono">exp(-x**2/2)</code></li>
+                                        <li><strong class="text-foreground">Bounds:</strong> -2 to 2 (standard deviations)</li>
+                                        <li><strong class="text-foreground">Application:</strong> Quality control, risk analysis</li>
+                                    </ul>
+                                </div>
+
+                                <div class="bg-input rounded p-3">
+                                    <p class="font-semibold text-foreground mb-2">Example: Expected value calculation</p>
+                                    <p class="mb-2">E[X] = ∫ x·f(x) dx. For f(x) = 2x from x = 0 to x = 1</p>
+                                    <ul class="space-y-1 ml-4 text-xs">
+                                        <li><strong class="text-foreground">Function:</strong> <code class="bg-card px-1 py-0.5 rounded font-mono">x*2*x</code> or <code class="bg-card px-1 py-0.5 rounded font-mono">2*x**2</code></li>
+                                        <li><strong class="text-foreground">Bounds:</strong> 0 to 1</li>
+                                        <li><strong class="text-foreground">Expected:</strong> 2/3 ≈ 0.667</li>
+                                        <li><strong class="text-foreground">Application:</strong> Data analysis, forecasting</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="bg-secondary rounded-lg p-4">
+                                <h4 class="font-semibold text-foreground mb-3 flex items-center gap-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                                    Economics and Finance
+                                </h4>
+                                
+                                <div class="bg-input rounded p-3 mb-3">
+                                    <p class="font-semibold text-foreground mb-2">Example: Total revenue over time</p>
+                                    <p class="mb-2">Revenue = ∫ R'(t) dt. For revenue rate R'(t) = 1000·e^(-0.1t) from t = 0 to t = 10 years</p>
+                                    <ul class="space-y-1 ml-4 text-xs">
+                                        <li><strong class="text-foreground">Function:</strong> <code class="bg-card px-1 py-0.5 rounded font-mono">1000*exp(-0.1*x)</code></li>
+                                        <li><strong class="text-foreground">Bounds:</strong> 0 to 10</li>
+                                        <li><strong class="text-foreground">Application:</strong> Business planning, investment analysis</li>
+                                    </ul>
+                                </div>
+
+                                <div class="bg-input rounded p-3">
+                                    <p class="font-semibold text-foreground mb-2">Example: Consumer surplus</p>
+                                    <p class="mb-2">Surplus = ∫ [Demand(x) - Price] dx. For demand curve D(x) = 100 - x²</p>
+                                    <ul class="space-y-1 ml-4 text-xs">
+                                        <li><strong class="text-foreground">Function:</strong> <code class="bg-card px-1 py-0.5 rounded font-mono">100 - x**2</code></li>
+                                        <li><strong class="text-foreground">Bounds:</strong> 0 to 10 (market quantity)</li>
+                                        <li><strong class="text-foreground">Application:</strong> Market analysis, pricing strategies</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="bg-accent/10 border border-accent/30 rounded-lg p-4">
+                                <p class="font-semibold text-foreground mb-2">💡 Tips for Real-World Problems:</p>
+                                <ul class="list-disc list-inside space-y-1 ml-4 text-xs">
+                                    <li>Always check units - ensure your bounds and function values are consistent</li>
+                                    <li>For oscillating functions (like sin, cos), use more intervals for accuracy</li>
+                                    <li>Compare multiple methods to verify your results</li>
+                                    <li>Use convergence analysis to ensure sufficient precision</li>
+                                    <li>Remember: numerical integration gives approximations - consider error bounds for critical applications</li>
                                 </ul>
                             </div>
                         </div>
