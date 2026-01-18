@@ -1,0 +1,57 @@
+:root {
+    --primary: oklch(0.65 0.25 200);
+    --primary-foreground: oklch(1 0 0);
+    --accent: oklch(0.70 0.20 80);
+    --accent-foreground: oklch(0.15 0.01 260);
+    --background: oklch(0.15 0.01 260);
+    --foreground: oklch(0.95 0.01 260);
+    --card: oklch(0.20 0.01 260);
+    --card-foreground: oklch(0.95 0.01 260);
+    --secondary: oklch(0.25 0.02 260);
+    --secondary-foreground: oklch(0.90 0.01 260);
+    --muted: oklch(0.30 0.02 260);
+    --muted-foreground: oklch(0.70 0.01 260);
+    --border: oklch(0.25 0.02 260);
+    --input: oklch(0.22 0.01 260);
+    --ring: oklch(0.65 0.25 200);
+    --destructive: oklch(0.65 0.22 30);
+    --destructive-foreground: oklch(1 0 0);
+}
+
+body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: 'Roboto Mono', monospace;
+}
+
+h1, h2, h3 {
+    font-family: 'IBM Plex Mono', monospace;
+}
+
+.bg-card { background-color: var(--card); }
+.text-primary { color: var(--primary); }
+.bg-primary { background-color: var(--primary); }
+.text-primary-foreground { color: var(--primary-foreground); }
+.border-border { border-color: var(--border); }
+.bg-secondary { background-color: var(--secondary); }
+.text-muted-foreground { color: var(--muted-foreground); }
+.bg-input { background-color: var(--input); }
+.bg-destructive-10 { background-color: color-mix(in oklch, var(--destructive), transparent 90%); }
+.text-destructive { color: var(--destructive); }
+.border-destructive { border-color: var(--destructive); }
+
+canvas {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+}
+
+.tab-active {
+    border-bottom: 2px solid var(--primary);
+    color: var(--primary);
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}

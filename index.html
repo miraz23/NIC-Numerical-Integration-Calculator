@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Numerical Integration Calculator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="min-h-screen">
+    <!-- Header -->
+    <header class="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-10">
+        <div class="container mx-auto px-4 py-4 flex items-center justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-primary">∫ Integration Calculator</h1>
+                <p class="text-sm text-muted-foreground">Numerical approximation methods</p>
+            </div>
+            <div class="flex gap-2">
+                <button id="resetBtn" class="flex items-center gap-2 px-3 py-1.5 border border-border rounded text-sm hover:bg-secondary transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                    Reset
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-6">
+        <!-- Error Display -->
+        <div id="errorDisplay" class="hidden mb-6 p-4 bg-destructive-10 border border-destructive rounded-lg flex items-start gap-3">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-destructive flex-shrink-0 mt-0.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <div>
+                <p class="font-semibold text-destructive">Error</p>
+                <p id="errorMessage" class="text-sm text-destructive/80"></p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Left Panel: Input Controls -->
+            <div class="lg:col-span-1 space-y-4">
+                <!-- Function Input -->
+                <div class="bg-card border border-border rounded-lg p-6">
+                    <h2 class="text-lg font-bold mb-1">Function</h2>
+                    <p class="text-sm text-muted-foreground mb-4">Enter the function to integrate</p>
+                    <div class="space-y-3">
+                        <div>
+                            <label for="functionInput" class="text-xs uppercase tracking-wide text-muted-foreground mb-2 block">f(x) =</label>
+                            <input id="functionInput" type="text" value="x**2" placeholder="e.g., x**2, sin(x), sqrt(x)" class="w-full font-mono text-sm bg-input border border-border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary">
+                        </div>
+                        <div class="text-xs text-muted-foreground space-y-1">
+                            <p>Supported: +, -, *, /, ^, sin, cos, tan, sqrt, exp, log, abs</p>
+                            <p>Constants: π, e</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Integration Bounds -->
+                <div class="bg-card border border-border rounded-lg p-6">
+                    <h2 class="text-lg font-bold mb-1">Integration Bounds</h2>
+                    <p class="text-sm text-muted-foreground mb-4">Define the interval [a, b]</p>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label for="lowerBound" class="text-xs uppercase tracking-wide text-muted-foreground mb-2 block">Lower Bound (a)</label>
+                            <input id="lowerBound" type="number" value="0" step="0.1" class="w-full font-mono text-sm bg-input border border-border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary">
+                        </div>
+                        <div>
+                            <label for="upperBound" class="text-xs uppercase tracking-wide text-muted-foreground mb-2 block">Upper Bound (b)</label>
+                            <input id="upperBound" type="number" value="1" step="0.1" class="w-full font-mono text-sm bg-input border border-border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Method Selection -->
+                <div class="bg-card border border-border rounded-lg p-6">
+                    <h2 class="text-lg font-bold mb-1">Methods</h2>
+                    <p class="text-sm text-muted-foreground mb-4">Select integration methods</p>
+                    <div class="space-y-2">
+                        <div class="flex items-center gap-3">
+                            <input type="checkbox" id="methodTrapezoidal" checked class="w-4 h-4 rounded border-border bg-input text-primary focus:ring-primary">
+                            <label for="methodTrapezoidal" class="text-sm cursor-pointer">Trapezoidal Rule</label>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <input type="checkbox" id="methodSimpson" checked class="w-4 h-4 rounded border-border bg-input text-primary focus:ring-primary">
+                            <label for="methodSimpson" class="text-sm cursor-pointer">Simpson's Rule</label>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <input type="checkbox" id="methodMonteCarlo" class="w-4 h-4 rounded border-border bg-input text-primary focus:ring-primary">
+                            <label for="methodMonteCarlo" class="text-sm cursor-pointer">Monte Carlo</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Parameters -->
+                <div class="bg-card border border-border rounded-lg p-6">
+                    <h2 class="text-lg font-bold mb-1">Parameters</h2>
+                    <p class="text-sm text-muted-foreground mb-4">Adjust precision settings</p>
+                    <div class="space-y-3">
+                        <div>
+                            <label for="intervalsInput" class="text-xs uppercase tracking-wide text-muted-foreground mb-2 block">Intervals (Trapezoidal/Simpson)</label>
+                            <input id="intervalsInput" type="number" value="10" min="2" step="10" class="w-full font-mono text-sm bg-input border border-border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary">
+                        </div>
+                        <div>
+                            <label for="samplesInput" class="text-xs uppercase tracking-wide text-muted-foreground mb-2 block">Samples (Monte Carlo)</label>
+                            <input id="samplesInput" type="number" value="1000" min="10" step="100" class="w-full font-mono text-sm bg-input border border-border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Calculate Button -->
+                <button id="calculateBtn" class="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3 rounded-lg transition-colors flex items-center justify-center gap-2">
+                    Calculate
+                </button>
+            </div>
+
+            <!-- Right Panel: Visualization + Results -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Visualization -->
+                <div id="visualizationCard" class="hidden bg-card border border-border rounded-lg overflow-hidden">
+                    <div class="p-6 border-b border-border">
+                        <h2 class="text-lg font-bold">Visualization</h2>
+                    </div>
+                    <div class="p-6">
+                        <div id="vizTabs" class="flex gap-4 mb-4 border-b border-border">
+                            <!-- Tab buttons will be injected here -->
+                        </div>
+                        <canvas id="vizCanvas" class="w-full h-96 bg-gradient-to-br from-slate-900 to-slate-800 rounded"></canvas>
+                    </div>
+                </div>
+
+                <!-- Results -->
+                <div id="resultsCard" class="hidden space-y-6">
+                    <div class="bg-card border border-border rounded-lg p-6">
+                        <h2 class="text-lg font-bold mb-1">Results</h2>
+                        <p class="text-sm text-muted-foreground mb-4">Numerical integration approximations</p>
+                        <div id="resultsSummary" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- Result items will be injected here -->
+                        </div>
+                    </div>
+
+                    <div id="detailedResultCard" class="hidden bg-card border border-border rounded-lg p-6">
+                        <h2 id="detailedResultTitle" class="text-lg font-bold mb-4">Method Details</h2>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                            <div>
+                                <p class="text-xs uppercase tracking-wide text-muted-foreground mb-1">Result</p>
+                                <p id="detailedResultValue" class="text-xl font-mono font-bold text-primary"></p>
+                            </div>
+                            <div id="detailedIntervalsBox">
+                                <p class="text-xs uppercase tracking-wide text-muted-foreground mb-1">Intervals</p>
+                                <p id="detailedIntervalsValue" class="text-xl font-mono font-bold"></p>
+                            </div>
+                            <div id="detailedSamplesBox">
+                                <p class="text-xs uppercase tracking-wide text-muted-foreground mb-1">Samples</p>
+                                <p id="detailedSamplesValue" class="text-xl font-mono font-bold"></p>
+                            </div>
+                            <div>
+                                <p class="text-xs uppercase tracking-wide text-muted-foreground mb-1">Execution Time</p>
+                                <p id="detailedTimeValue" class="text-xl font-mono font-bold"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-card border border-border rounded-lg p-6">
+                        <h2 class="text-lg font-bold mb-1 flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-accent"><path d="m3 16 4-4 4 4 4-4 4 4"/><path d="M18 12h4v4"/></svg>
+                            Convergence Analysis
+                        </h2>
+                        <p class="text-sm text-muted-foreground mb-4">Analyze accuracy as precision increases</p>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <button onclick="analyzeConvergence('trapezoidal')" class="px-3 py-1.5 border border-border rounded text-sm hover:bg-secondary transition-colors">Trapezoidal</button>
+                            <button onclick="analyzeConvergence('simpson')" class="px-3 py-1.5 border border-border rounded text-sm hover:bg-secondary transition-colors">Simpson's</button>
+                            <button onclick="analyzeConvergence('monte-carlo')" class="px-3 py-1.5 border border-border rounded text-sm hover:bg-secondary transition-colors">Monte Carlo</button>
+                        </div>
+                        <div id="convergenceChartContainer" class="hidden h-64 w-full">
+                            <canvas id="convergenceCanvas"></canvas>
+                        </div>
+                    </div>
+
+                    <button id="exportBtn" class="w-full flex items-center justify-center gap-2 px-4 py-2 border border-border rounded-lg hover:bg-secondary transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        Export Results (JSON)
+                    </button>
+                </div>
+
+                <!-- Empty State -->
+                <div id="emptyState" class="p-12 bg-card border border-border rounded-lg text-center">
+                    <p class="text-muted-foreground mb-4">Enter a function and click "Calculate" to see results</p>
+                    <div class="inline-block px-4 py-2 bg-primary/10 rounded text-sm text-primary">
+                        Try: x**2, sin(x), sqrt(x), exp(x)
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-border bg-card/30 mt-12">
+        <div class="container mx-auto px-4 py-6 flex flex-col md:flex-row items-center justify-between gap-4">
+            <p class="text-sm text-muted-foreground text-center md:text-left">Numerical Integration Calculator • Supports Trapezoidal Rule, Simpson's Rule, and Monte Carlo Method</p>
+            <div class="flex gap-4">
+                <span class="text-sm text-muted-foreground">v1.0.0</span>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
