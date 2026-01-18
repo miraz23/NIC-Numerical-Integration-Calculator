@@ -17,6 +17,10 @@
                 <p class="text-sm text-muted-foreground">Numerical approximation methods</p>
             </div>
             <div class="flex gap-2">
+                <button id="docsBtn" class="flex items-center gap-2 px-3 py-1.5 border border-border rounded text-sm hover:bg-secondary transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/><path d="M8 11h8"/><path d="M8 7h8"/><path d="M8 15h6"/></svg>
+                    Documentation
+                </button>
                 <button id="resetBtn" class="flex items-center gap-2 px-3 py-1.5 border border-border rounded text-sm hover:bg-secondary transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
                     Reset
@@ -123,7 +127,7 @@
 
                     <div id="detailedResultCard" class="hidden bg-card border border-border rounded-lg p-6">
                         <h2 id="detailedResultTitle" class="text-lg font-bold mb-4">Method Details</h2>
-                        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
                             <div>
                                 <p class="text-xs uppercase tracking-wide text-muted-foreground mb-1">Result</p>
                                 <p id="detailedResultValue" class="text-xl font-mono font-bold text-primary"></p>
@@ -137,6 +141,37 @@
                                 <p id="detailedTimeValue" class="text-xl font-mono font-bold"></p>
                             </div>
                         </div>
+                        <div id="detailedErrorBox" class="hidden pt-4 border-t border-border">
+                            <h3 class="text-sm font-semibold mb-3 text-foreground">Error Estimation</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                    <p class="text-xs uppercase tracking-wide text-muted-foreground mb-1">Reference Value</p>
+                                    <p id="detailedExactValue" class="text-lg font-mono font-bold text-accent"></p>
+                                </div>
+                                <div>
+                                    <p class="text-xs uppercase tracking-wide text-muted-foreground mb-1">Absolute Error</p>
+                                    <p id="detailedAbsoluteError" class="text-lg font-mono font-bold text-destructive"></p>
+                                </div>
+                                <div>
+                                    <p class="text-xs uppercase tracking-wide text-muted-foreground mb-1">Relative Error</p>
+                                    <p id="detailedRelativeError" class="text-lg font-mono font-bold text-destructive"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-card border border-border rounded-lg p-6">
+                        <h2 class="text-lg font-bold mb-1 flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-destructive"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                            Error Comparison
+                        </h2>
+                        <p class="text-sm text-muted-foreground mb-4">Compare absolute errors across different methods</p>
+                        <div id="errorChartContainer" class="hidden h-64 w-full">
+                            <canvas id="errorCanvas"></canvas>
+                        </div>
+                        <button id="showErrorChartBtn" onclick="drawErrorChart()" class="mt-4 px-4 py-2 border border-border rounded text-sm hover:bg-secondary transition-colors">
+                            Show Error Visualization
+                        </button>
                     </div>
 
                     <div class="bg-card border border-border rounded-lg p-6">
@@ -170,6 +205,291 @@
             </div>
         </div>
     </main>
+
+    <!-- Documentation Modal -->
+    <div id="docsModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-black/50 backdrop-blur-sm">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-card border border-border rounded-lg max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+                <div class="p-6 border-b border-border flex items-center justify-between sticky top-0 bg-card">
+                    <h2 class="text-2xl font-bold text-primary">Documentation & Tutorials</h2>
+                    <button id="closeDocsBtn" class="p-2 hover:bg-secondary rounded transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </button>
+                </div>
+                <div class="overflow-y-auto p-6 space-y-8">
+                    <!-- Getting Started -->
+                    <section>
+                        <h3 class="text-xl font-bold mb-4 text-primary">Getting Started</h3>
+                        <div class="space-y-4 text-sm text-muted-foreground">
+                            <p>The Numerical Integration Calculator allows you to approximate definite integrals using three different numerical methods. Follow these steps to get started:</p>
+                            <ol class="list-decimal list-inside space-y-2 ml-4">
+                                <li><strong class="text-foreground">Enter your function:</strong> Type your function f(x) in the function input field. Use standard mathematical notation (e.g., <code class="bg-input px-1 py-0.5 rounded font-mono">x**2</code>, <code class="bg-input px-1 py-0.5 rounded font-mono">sin(x)</code>, <code class="bg-input px-1 py-0.5 rounded font-mono">sqrt(x)</code>).</li>
+                                <li><strong class="text-foreground">Set integration bounds:</strong> Specify the lower bound (a) and upper bound (b) to define your integration interval [a, b].</li>
+                                <li><strong class="text-foreground">Choose methods:</strong> Select one or more integration methods you want to compare.</li>
+                                <li><strong class="text-foreground">Set intervals:</strong> Adjust the number of intervals (subdivisions) to control precision. More intervals generally yield more accurate results but take longer to compute.</li>
+                                <li><strong class="text-foreground">Calculate:</strong> Click the "Calculate" button to see results and visualizations.</li>
+                            </ol>
+                        </div>
+                    </section>
+
+                    <!-- Function Syntax -->
+                    <section>
+                        <h3 class="text-xl font-bold mb-4 text-primary">Function Syntax</h3>
+                        <div class="bg-secondary rounded-lg p-4 space-y-3">
+                            <div>
+                                <p class="text-sm font-semibold mb-2 text-foreground">Supported Operations:</p>
+                                <ul class="text-sm text-muted-foreground space-y-1 ml-4">
+                                    <li><code class="bg-input px-1 py-0.5 rounded font-mono">+</code> Addition</li>
+                                    <li><code class="bg-input px-1 py-0.5 rounded font-mono">-</code> Subtraction</li>
+                                    <li><code class="bg-input px-1 py-0.5 rounded font-mono">*</code> Multiplication</li>
+                                    <li><code class="bg-input px-1 py-0.5 rounded font-mono">/</code> Division</li>
+                                    <li><code class="bg-input px-1 py-0.5 rounded font-mono">^</code> or <code class="bg-input px-1 py-0.5 rounded font-mono">**</code> Exponentiation</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <p class="text-sm font-semibold mb-2 text-foreground">Mathematical Functions:</p>
+                                <ul class="text-sm text-muted-foreground space-y-1 ml-4">
+                                    <li><code class="bg-input px-1 py-0.5 rounded font-mono">sin(x)</code> Sine</li>
+                                    <li><code class="bg-input px-1 py-0.5 rounded font-mono">cos(x)</code> Cosine</li>
+                                    <li><code class="bg-input px-1 py-0.5 rounded font-mono">tan(x)</code> Tangent</li>
+                                    <li><code class="bg-input px-1 py-0.5 rounded font-mono">sqrt(x)</code> Square root</li>
+                                    <li><code class="bg-input px-1 py-0.5 rounded font-mono">exp(x)</code> Exponential (e^x)</li>
+                                    <li><code class="bg-input px-1 py-0.5 rounded font-mono">log(x)</code> or <code class="bg-input px-1 py-0.5 rounded font-mono">ln(x)</code> Natural logarithm</li>
+                                    <li><code class="bg-input px-1 py-0.5 rounded font-mono">abs(x)</code> Absolute value</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <p class="text-sm font-semibold mb-2 text-foreground">Constants:</p>
+                                <ul class="text-sm text-muted-foreground space-y-1 ml-4">
+                                    <li><code class="bg-input px-1 py-0.5 rounded font-mono">π</code> Pi (3.14159...)</li>
+                                    <li><code class="bg-input px-1 py-0.5 rounded font-mono">e</code> Euler's number (2.71828...)</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Theory: Trapezoidal Rule -->
+                    <section>
+                        <h3 class="text-xl font-bold mb-4 text-primary">Theory: Trapezoidal Rule</h3>
+                        <div class="space-y-4 text-sm text-muted-foreground">
+                            <p>The Trapezoidal Rule approximates the definite integral by dividing the interval [a, b] into n equal subintervals and approximating the area under the curve using trapezoids.</p>
+                            <div class="bg-secondary rounded-lg p-4">
+                                <p class="font-semibold text-foreground mb-2">Formula:</p>
+                                <p class="font-mono text-center text-foreground">∫[a to b] f(x)dx ≈ (h/2)[f(a) + 2∑f(xᵢ) + f(b)]</p>
+                                <p class="mt-2 text-xs">where h = (b - a)/n and xᵢ = a + i·h</p>
+                            </div>
+                            <div>
+                                <p class="font-semibold text-foreground mb-2">How it works:</p>
+                                <ul class="list-disc list-inside space-y-1 ml-4">
+                                    <li>Divides the interval into n equal subintervals</li>
+                                    <li>Approximates each subinterval as a trapezoid</li>
+                                    <li>Sums the areas of all trapezoids</li>
+                                    <li>Error is proportional to h², making it a second-order method</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <p class="font-semibold text-foreground mb-2">When to use:</p>
+                                <ul class="list-disc list-inside space-y-1 ml-4">
+                                    <li>Simple and straightforward method</li>
+                                    <li>Good for functions that are approximately linear over small intervals</li>
+                                    <li>Requires fewer function evaluations than Simpson's methods</li>
+                                    <li>Less accurate than Simpson's methods for smooth functions</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Theory: Simpson's 1/3 Rule -->
+                    <section>
+                        <h3 class="text-xl font-bold mb-4 text-primary">Theory: Simpson's 1/3 Rule</h3>
+                        <div class="space-y-4 text-sm text-muted-foreground">
+                            <p>Simpson's 1/3 Rule uses quadratic polynomials (parabolas) to approximate the function over pairs of subintervals, providing higher accuracy than the Trapezoidal Rule.</p>
+                            <div class="bg-secondary rounded-lg p-4">
+                                <p class="font-semibold text-foreground mb-2">Formula:</p>
+                                <p class="font-mono text-center text-foreground">∫[a to b] f(x)dx ≈ (h/3)[f(a) + 4∑f(x₂ᵢ₋₁) + 2∑f(x₂ᵢ) + f(b)]</p>
+                                <p class="mt-2 text-xs">where h = (b - a)/n, n must be even, and xᵢ = a + i·h</p>
+                            </div>
+                            <div>
+                                <p class="font-semibold text-foreground mb-2">How it works:</p>
+                                <ul class="list-disc list-inside space-y-1 ml-4">
+                                    <li>Requires an even number of subintervals</li>
+                                    <li>Fits a quadratic polynomial through three consecutive points</li>
+                                    <li>Uses weighted coefficients: 1, 4, 2, 4, 2, ..., 4, 1</li>
+                                    <li>Error is proportional to h⁴, making it a fourth-order method</li>
+                                    <li>More accurate than Trapezoidal Rule for smooth functions</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <p class="font-semibold text-foreground mb-2">When to use:</p>
+                                <ul class="list-disc list-inside space-y-1 ml-4">
+                                    <li>Best for smooth, well-behaved functions</li>
+                                    <li>Provides excellent accuracy with fewer intervals</li>
+                                    <li>Ideal when the function can be well-approximated by quadratic polynomials</li>
+                                    <li>Most commonly used Simpson's method</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Theory: Simpson's 3/8 Rule -->
+                    <section>
+                        <h3 class="text-xl font-bold mb-4 text-primary">Theory: Simpson's 3/8 Rule</h3>
+                        <div class="space-y-4 text-sm text-muted-foreground">
+                            <p>Simpson's 3/8 Rule uses cubic polynomials to approximate the function over triplets of subintervals, providing an alternative to Simpson's 1/3 Rule.</p>
+                            <div class="bg-secondary rounded-lg p-4">
+                                <p class="font-semibold text-foreground mb-2">Formula:</p>
+                                <p class="font-mono text-center text-foreground">∫[a to b] f(x)dx ≈ (3h/8)[f(a) + 3∑f(x₃ᵢ₋₂) + 3∑f(x₃ᵢ₋₁) + 2∑f(x₃ᵢ) + f(b)]</p>
+                                <p class="mt-2 text-xs">where h = (b - a)/n, n must be divisible by 3, and xᵢ = a + i·h</p>
+                            </div>
+                            <div>
+                                <p class="font-semibold text-foreground mb-2">How it works:</p>
+                                <ul class="list-disc list-inside space-y-1 ml-4">
+                                    <li>Requires the number of subintervals to be divisible by 3</li>
+                                    <li>Fits a cubic polynomial through four consecutive points</li>
+                                    <li>Uses weighted coefficients: 1, 3, 3, 2, 3, 3, 2, ..., 3, 3, 1</li>
+                                    <li>Error is proportional to h⁴, same order as Simpson's 1/3 Rule</li>
+                                    <li>Useful when the number of intervals is divisible by 3 but not by 2</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <p class="font-semibold text-foreground mb-2">When to use:</p>
+                                <ul class="list-disc list-inside space-y-1 ml-4">
+                                    <li>Useful when you have a number of intervals divisible by 3</li>
+                                    <li>Provides similar accuracy to Simpson's 1/3 Rule</li>
+                                    <li>Good alternative when Simpson's 1/3 Rule cannot be applied</li>
+                                    <li>Better for functions that require cubic approximation</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Practical Examples -->
+                    <section>
+                        <h3 class="text-xl font-bold mb-4 text-primary">Practical Examples</h3>
+                        <div class="space-y-6">
+                            <div class="bg-secondary rounded-lg p-4">
+                                <h4 class="font-semibold text-foreground mb-3">Example 1: Simple Polynomial</h4>
+                                <p class="text-sm text-muted-foreground mb-2">Calculate ∫₀¹ x² dx</p>
+                                <ul class="text-sm text-muted-foreground space-y-1 ml-4">
+                                    <li><strong class="text-foreground">Function:</strong> <code class="bg-input px-1 py-0.5 rounded font-mono">x**2</code></li>
+                                    <li><strong class="text-foreground">Lower bound:</strong> 0</li>
+                                    <li><strong class="text-foreground">Upper bound:</strong> 1</li>
+                                    <li><strong class="text-foreground">Intervals:</strong> 10</li>
+                                    <li><strong class="text-foreground">Expected result:</strong> 1/3 ≈ 0.333333...</li>
+                                    <li><strong class="text-foreground">Tip:</strong> Try increasing intervals to see convergence</li>
+                                </ul>
+                            </div>
+
+                            <div class="bg-secondary rounded-lg p-4">
+                                <h4 class="font-semibold text-foreground mb-3">Example 2: Trigonometric Function</h4>
+                                <p class="text-sm text-muted-foreground mb-2">Calculate ∫₀^π sin(x) dx</p>
+                                <ul class="text-sm text-muted-foreground space-y-1 ml-4">
+                                    <li><strong class="text-foreground">Function:</strong> <code class="bg-input px-1 py-0.5 rounded font-mono">sin(x)</code></li>
+                                    <li><strong class="text-foreground">Lower bound:</strong> 0</li>
+                                    <li><strong class="text-foreground">Upper bound:</strong> π (or 3.14159)</li>
+                                    <li><strong class="text-foreground">Intervals:</strong> 20</li>
+                                    <li><strong class="text-foreground">Expected result:</strong> 2</li>
+                                    <li><strong class="text-foreground">Tip:</strong> Simpson's methods work excellently for smooth trigonometric functions</li>
+                                </ul>
+                            </div>
+
+                            <div class="bg-secondary rounded-lg p-4">
+                                <h4 class="font-semibold text-foreground mb-3">Example 3: Exponential Function</h4>
+                                <p class="text-sm text-muted-foreground mb-2">Calculate ∫₀¹ e^x dx</p>
+                                <ul class="text-sm text-muted-foreground space-y-1 ml-4">
+                                    <li><strong class="text-foreground">Function:</strong> <code class="bg-input px-1 py-0.5 rounded font-mono">exp(x)</code></li>
+                                    <li><strong class="text-foreground">Lower bound:</strong> 0</li>
+                                    <li><strong class="text-foreground">Upper bound:</strong> 1</li>
+                                    <li><strong class="text-foreground">Intervals:</strong> 16</li>
+                                    <li><strong class="text-foreground">Expected result:</strong> e - 1 ≈ 1.71828...</li>
+                                    <li><strong class="text-foreground">Tip:</strong> Compare all three methods to see accuracy differences</li>
+                                </ul>
+                            </div>
+
+                            <div class="bg-secondary rounded-lg p-4">
+                                <h4 class="font-semibold text-foreground mb-3">Example 4: Composite Function</h4>
+                                <p class="text-sm text-muted-foreground mb-2">Calculate ∫₀² x·sin(x²) dx</p>
+                                <ul class="text-sm text-muted-foreground space-y-1 ml-4">
+                                    <li><strong class="text-foreground">Function:</strong> <code class="bg-input px-1 py-0.5 rounded font-mono">x*sin(x**2)</code></li>
+                                    <li><strong class="text-foreground">Lower bound:</strong> 0</li>
+                                    <li><strong class="text-foreground">Upper bound:</strong> 2</li>
+                                    <li><strong class="text-foreground">Intervals:</strong> 30</li>
+                                    <li><strong class="text-foreground">Tip:</strong> Use more intervals for oscillating functions</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Tips for Effective Use -->
+                    <section>
+                        <h3 class="text-xl font-bold mb-4 text-primary">Tips for Effective Use</h3>
+                        <div class="space-y-3 text-sm text-muted-foreground">
+                            <div class="bg-secondary rounded-lg p-4">
+                                <p class="font-semibold text-foreground mb-2">Choosing the Right Method:</p>
+                                <ul class="list-disc list-inside space-y-1 ml-4">
+                                    <li><strong class="text-foreground">Trapezoidal Rule:</strong> Use for quick approximations or when simplicity is preferred</li>
+                                    <li><strong class="text-foreground">Simpson's 1/3 Rule:</strong> Best choice for most smooth functions - provides excellent accuracy</li>
+                                    <li><strong class="text-foreground">Simpson's 3/8 Rule:</strong> Use when you have intervals divisible by 3 but not by 2</li>
+                                </ul>
+                            </div>
+                            <div class="bg-secondary rounded-lg p-4">
+                                <p class="font-semibold text-foreground mb-2">Optimizing Precision:</p>
+                                <ul class="list-disc list-inside space-y-1 ml-4">
+                                    <li>Start with fewer intervals (10-20) to get quick results</li>
+                                    <li>Gradually increase intervals to improve accuracy</li>
+                                    <li>Use the Convergence Analysis feature to see how results stabilize</li>
+                                    <li>More intervals = better accuracy but slower computation</li>
+                                </ul>
+                            </div>
+                            <div class="bg-secondary rounded-lg p-4">
+                                <p class="font-semibold text-foreground mb-2">Interpreting Results:</p>
+                                <ul class="list-disc list-inside space-y-1 ml-4">
+                                    <li>Compare multiple methods to verify consistency</li>
+                                    <li>Check the visualization to understand how each method approximates the area</li>
+                                    <li>Use convergence analysis to determine if you need more intervals</li>
+                                    <li>Export results for further analysis or documentation</li>
+                                </ul>
+                            </div>
+                            <div class="bg-secondary rounded-lg p-4">
+                                <p class="font-semibold text-foreground mb-2">Common Pitfalls:</p>
+                                <ul class="list-disc list-inside space-y-1 ml-4">
+                                    <li>Avoid functions with discontinuities or singularities in the integration interval</li>
+                                    <li>Ensure Simpson's 1/3 Rule uses an even number of intervals</li>
+                                    <li>Ensure Simpson's 3/8 Rule uses a number of intervals divisible by 3</li>
+                                    <li>Check that your function is valid for all x in [a, b]</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Understanding Error -->
+                    <section>
+                        <h3 class="text-xl font-bold mb-4 text-primary">Understanding Numerical Integration Error</h3>
+                        <div class="space-y-4 text-sm text-muted-foreground">
+                            <p>All numerical integration methods introduce some error because they approximate the true integral. Understanding error helps you choose the right method and number of intervals.</p>
+                            <div class="bg-secondary rounded-lg p-4">
+                                <p class="font-semibold text-foreground mb-2">Error Characteristics:</p>
+                                <ul class="list-disc list-inside space-y-1 ml-4">
+                                    <li><strong class="text-foreground">Trapezoidal Rule:</strong> Error ≈ O(h²) - decreases quadratically with interval size</li>
+                                    <li><strong class="text-foreground">Simpson's 1/3 Rule:</strong> Error ≈ O(h⁴) - decreases much faster than Trapezoidal</li>
+                                    <li><strong class="text-foreground">Simpson's 3/8 Rule:</strong> Error ≈ O(h⁴) - similar to Simpson's 1/3 Rule</li>
+                                </ul>
+                            </div>
+                            <div class="bg-secondary rounded-lg p-4">
+                                <p class="font-semibold text-foreground mb-2">Reducing Error:</p>
+                                <ul class="list-disc list-inside space-y-1 ml-4">
+                                    <li>Increase the number of intervals (decrease h)</li>
+                                    <li>Use Simpson's methods for smooth functions</li>
+                                    <li>Use Convergence Analysis to find optimal interval count</li>
+                                    <li>Compare results from different methods to verify accuracy</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <footer class="border-t border-border bg-card/30 mt-12">
         <div class="container mx-auto px-4 py-6 flex flex-col md:flex-row items-center justify-between gap-4">
