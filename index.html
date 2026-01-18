@@ -84,10 +84,6 @@
                             <input type="checkbox" id="methodSimpson" checked class="w-4 h-4 rounded border-border bg-input text-primary focus:ring-primary">
                             <label for="methodSimpson" class="text-sm cursor-pointer">Simpson's Rule</label>
                         </div>
-                        <div class="flex items-center gap-3">
-                            <input type="checkbox" id="methodMonteCarlo" class="w-4 h-4 rounded border-border bg-input text-primary focus:ring-primary">
-                            <label for="methodMonteCarlo" class="text-sm cursor-pointer">Monte Carlo</label>
-                        </div>
                     </div>
                 </div>
 
@@ -99,10 +95,6 @@
                         <div>
                             <label for="intervalsInput" class="text-xs uppercase tracking-wide text-muted-foreground mb-2 block">Intervals (Trapezoidal/Simpson)</label>
                             <input id="intervalsInput" type="number" value="10" min="2" step="10" class="w-full font-mono text-sm bg-input border border-border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary">
-                        </div>
-                        <div>
-                            <label for="samplesInput" class="text-xs uppercase tracking-wide text-muted-foreground mb-2 block">Samples (Monte Carlo)</label>
-                            <input id="samplesInput" type="number" value="1000" min="10" step="100" class="w-full font-mono text-sm bg-input border border-border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary">
                         </div>
                     </div>
                 </div>
@@ -149,10 +141,6 @@
                                 <p class="text-xs uppercase tracking-wide text-muted-foreground mb-1">Intervals</p>
                                 <p id="detailedIntervalsValue" class="text-xl font-mono font-bold"></p>
                             </div>
-                            <div id="detailedSamplesBox">
-                                <p class="text-xs uppercase tracking-wide text-muted-foreground mb-1">Samples</p>
-                                <p id="detailedSamplesValue" class="text-xl font-mono font-bold"></p>
-                            </div>
                             <div>
                                 <p class="text-xs uppercase tracking-wide text-muted-foreground mb-1">Execution Time</p>
                                 <p id="detailedTimeValue" class="text-xl font-mono font-bold"></p>
@@ -169,7 +157,6 @@
                         <div class="flex flex-wrap gap-2 mb-4">
                             <button onclick="analyzeConvergence('trapezoidal')" class="px-3 py-1.5 border border-border rounded text-sm hover:bg-secondary transition-colors">Trapezoidal</button>
                             <button onclick="analyzeConvergence('simpson')" class="px-3 py-1.5 border border-border rounded text-sm hover:bg-secondary transition-colors">Simpson's</button>
-                            <button onclick="analyzeConvergence('monte-carlo')" class="px-3 py-1.5 border border-border rounded text-sm hover:bg-secondary transition-colors">Monte Carlo</button>
                         </div>
                         <div id="convergenceChartContainer" class="hidden h-64 w-full">
                             <canvas id="convergenceCanvas"></canvas>
@@ -196,7 +183,7 @@
     <!-- Footer -->
     <footer class="border-t border-border bg-card/30 mt-12">
         <div class="container mx-auto px-4 py-6 flex flex-col md:flex-row items-center justify-between gap-4">
-            <p class="text-sm text-muted-foreground text-center md:text-left">Numerical Integration Calculator • Supports Trapezoidal Rule, Simpson's Rule, and Monte Carlo Method</p>
+            <p class="text-sm text-muted-foreground text-center md:text-left">Numerical Integration Calculator • Supports Trapezoidal Rule and Simpson's Rule</p>
             <div class="flex gap-4">
                 <span class="text-sm text-muted-foreground">v1.0.0</span>
             </div>
