@@ -67,23 +67,6 @@ function simpsonsRule(func, a, b, n) {
     };
 }
 
-/**
- * Monte Carlo Integration implementation.
- */
-function monteCarloIntegration(func, a, b, samples) {
-    const startTime = performance.now();
-    let sum = 0;
-    for (let i = 0; i < samples; i++) {
-        sum += func(a + Math.random() * (b - a));
-    }
-    const result = ((b - a) / samples) * sum;
-    return { 
-        method: 'Monte Carlo', 
-        result, 
-        samples, 
-        executionTime: performance.now() - startTime 
-    };
-}
 
 // --- Visualization Data Generators ---
 
@@ -120,22 +103,6 @@ function getSimpsonsViz(func, a, b, n) {
     return { method: "Simpson's Rule", points, areas };
 }
 
-function getMonteCarloViz(func, a, b, samples) {
-    const points = [];
-    const areas = [];
-    const curvePoints = [];
-    const steps = 100;
-    for (let i = 0; i <= steps; i++) {
-        const x = a + (i / steps) * (b - a);
-        curvePoints.push({ x, y: func(x) });
-    }
-    for (let i = 0; i < Math.min(samples, 500); i++) {
-        const x = a + Math.random() * (b - a);
-        const y = func(x);
-        areas.push({ x1: x, x2: x, y, type: 'monte-carlo' });
-    }
-    return { method: 'Monte Carlo', points: curvePoints, areas };
-}
 
 // --- UI State & Elements ---
 
@@ -144,7 +111,6 @@ let state = {
     lowerBound: 0,
     upperBound: 1,
     intervals: 10,
-    samples: 1000,
     results: new Map(),
     visualizations: new Map(),
     activeVizMethod: null
@@ -155,10 +121,8 @@ const elements = {
     lowerBound: document.getElementById('lowerBound'),
     upperBound: document.getElementById('upperBound'),
     intervalsInput: document.getElementById('intervalsInput'),
-    samplesInput: document.getElementById('samplesInput'),
     methodTrapezoidal: document.getElementById('methodTrapezoidal'),
     methodSimpson: document.getElementById('methodSimpson'),
-    methodMonteCarlo: document.getElementById('methodMonteCarlo'),
     calculateBtn: document.getElementById('calculateBtn'),
     resetBtn: document.getElementById('resetBtn'),
     errorDisplay: document.getElementById('errorDisplay'),
@@ -174,8 +138,6 @@ const elements = {
     detailedResultValue: document.getElementById('detailedResultValue'),
     detailedIntervalsBox: document.getElementById('detailedIntervalsBox'),
     detailedIntervalsValue: document.getElementById('detailedIntervalsValue'),
-    detailedSamplesBox: document.getElementById('detailedSamplesBox'),
-    detailedSamplesValue: document.getElementById('detailedSamplesValue'),
     detailedTimeValue: document.getElementById('detailedTimeValue'),
     exportBtn: document.getElementById('exportBtn')
 };
@@ -242,8 +204,7 @@ function drawVisualization(method) {
 
     const colors = {
         'trapezoidal': { fill: 'rgba(102, 204, 255, 0.3)', stroke: '#66ccff' },
-        'simpson': { fill: 'rgba(102, 255, 153, 0.3)', stroke: '#66ff99' },
-        'monte-carlo': { fill: 'rgba(255, 153, 102, 0.3)', stroke: '#ff9966' }
+        'simpson': { fill: 'rgba(102, 255, 153, 0.3)', stroke: '#66ff99' }
     }[method];
 
     // Areas
@@ -272,19 +233,6 @@ function drawVisualization(method) {
             ctx.quadraticCurveTo((x1 + x2) / 2, ym, x2, y2);
             ctx.lineTo(x2, offsetY); ctx.closePath(); ctx.fill(); ctx.stroke();
         }
-    } else if (method === 'monte-carlo') {
-        ctx.fillStyle = 'rgba(102, 204, 255, 0.1)';
-        ctx.beginPath();
-        ctx.moveTo(offsetX + (viz.points[0].x - state.lowerBound) * xScale, offsetY);
-        viz.points.forEach(p => ctx.lineTo(offsetX + (p.x - state.lowerBound) * xScale, offsetY - (p.y - minY) * yScale));
-        ctx.lineTo(offsetX + (viz.points[viz.points.length-1].x - state.lowerBound) * xScale, offsetY);
-        ctx.closePath(); ctx.fill();
-        ctx.fillStyle = colors.stroke;
-        viz.areas.forEach(a => {
-            const x = offsetX + (a.x1 - state.lowerBound) * xScale;
-            const y = offsetY - (a.y - minY) * yScale;
-            ctx.beginPath(); ctx.arc(x, y, 2, 0, Math.PI * 2); ctx.fill();
-        });
     }
 
     // Function Curve
@@ -309,7 +257,7 @@ function updateUI() {
         state.visualizations.forEach((viz, method) => {
             const btn = document.createElement('button');
             btn.className = `px-4 py-2 text-sm font-medium transition-colors ${state.activeVizMethod === method ? 'tab-active' : 'text-muted-foreground hover:text-foreground'}`;
-            btn.textContent = method === 'trapezoidal' ? 'Trapezoidal' : method === 'simpson' ? "Simpson's" : 'Monte Carlo';
+            btn.textContent = method === 'trapezoidal' ? 'Trapezoidal' : "Simpson's";
             btn.onclick = () => {
                 state.activeVizMethod = method;
                 updateUI();
@@ -329,7 +277,6 @@ function updateUI() {
                 <p class="text-2xl font-bold font-mono text-primary mb-3">${res.result.toFixed(8)}</p>
                 <div class="space-y-1 text-xs text-muted-foreground">
                     ${res.intervals ? `<p>Intervals: ${res.intervals}</p>` : ''}
-                    ${res.samples ? `<p>Samples: ${res.samples}</p>` : ''}
                     <p>Time: ${res.executionTime.toFixed(2)}ms</p>
                 </div>
             `;
@@ -354,12 +301,6 @@ function showDetailedResult(method) {
     } else {
         elements.detailedIntervalsBox.classList.add('hidden');
     }
-    if (res.samples) {
-        elements.detailedSamplesBox.classList.remove('hidden');
-        elements.detailedSamplesValue.textContent = res.samples;
-    } else {
-        elements.detailedSamplesBox.classList.add('hidden');
-    }
     elements.detailedTimeValue.textContent = res.executionTime.toFixed(2) + 'ms';
 }
 
@@ -374,13 +315,11 @@ function calculate() {
     const a = parseFloat(elements.lowerBound.value);
     const b = parseFloat(elements.upperBound.value);
     const n = parseInt(elements.intervalsInput.value);
-    const s = parseInt(elements.samplesInput.value);
 
     state.functionExpr = expr;
     state.lowerBound = a;
     state.upperBound = b;
     state.intervals = n;
-    state.samples = s;
 
     try {
         const f = (x) => evaluateFunction(expr, x);
@@ -393,10 +332,6 @@ function calculate() {
         if (elements.methodSimpson.checked) {
             state.results.set('simpson', simpsonsRule(f, a, b, n));
             state.visualizations.set('simpson', getSimpsonsViz(f, a, b, n));
-        }
-        if (elements.methodMonteCarlo.checked) {
-            state.results.set('monte-carlo', monteCarloIntegration(f, a, b, s));
-            state.visualizations.set('monte-carlo', getMonteCarloViz(f, a, b, s));
         }
 
         if (state.results.size === 0) {
@@ -416,10 +351,8 @@ function reset() {
     elements.lowerBound.value = '0';
     elements.upperBound.value = '1';
     elements.intervalsInput.value = '10';
-    elements.samplesInput.value = '1000';
     elements.methodTrapezoidal.checked = true;
     elements.methodSimpson.checked = true;
-    elements.methodMonteCarlo.checked = false;
     state.results.clear();
     state.visualizations.clear();
     elements.detailedResultCard.classList.add('hidden');
@@ -446,8 +379,7 @@ window.analyzeConvergence = function(method) {
         const iter = Math.pow(2, i + 2);
         let res;
         if (method === 'trapezoidal') res = trapezoidalRule(f, a, b, iter).result;
-        else if (method === 'simpson') res = simpsonsRule(f, a, b, iter).result;
-        else res = monteCarloIntegration(f, a, b, iter * 10).result;
+        else res = simpsonsRule(f, a, b, iter).result;
         data.push({ x: iter, y: res });
     }
 
@@ -464,7 +396,7 @@ window.analyzeConvergence = function(method) {
     const xScale = (canvas.width - 2 * padding) / (data.length - 1);
     const yScale = (canvas.height - 2 * padding) / (maxY - minY);
 
-    ctx.strokeStyle = method === 'trapezoidal' ? '#66ccff' : method === 'simpson' ? '#66ff99' : '#ff9966';
+    ctx.strokeStyle = method === 'trapezoidal' ? '#66ccff' : '#66ff99';
     ctx.lineWidth = 2;
     ctx.beginPath();
     data.forEach((d, i) => {
@@ -489,7 +421,6 @@ function exportResults() {
             method: res.method,
             result: res.result,
             intervals: res.intervals,
-            samples: res.samples,
             executionTime: res.executionTime
         }))
     };
