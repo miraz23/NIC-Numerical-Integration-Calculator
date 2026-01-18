@@ -396,7 +396,7 @@ function updateUI() {
         elements.resultsSummary.innerHTML = '';
         state.results.forEach((res, method) => {
             const div = document.createElement('div');
-            div.className = 'p-4 bg-secondary rounded-lg border border-border cursor-pointer transition-all hover:border-primary';
+            div.className = `p-4 bg-secondary rounded-lg border border-border cursor-pointer transition-all hover:border-primary ${res.method === "Simpson's 3/8 Rule" ? 'col-span-2' : ''}`;
             div.onclick = () => showDetailedResult(method);
             const errorInfo = res.error ? `
                 <div class="mt-2 pt-2 border-t border-border">
