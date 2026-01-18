@@ -1,4 +1,3 @@
-
 function evaluateFunction(expression, x) {
     try {
         let expr = expression
@@ -27,9 +26,6 @@ function evaluateFunction(expression, x) {
     }
 }
 
-/**
- * Trapezoidal Rule implementation.
- */
 function trapezoidalRule(func, a, b, n) {
     const startTime = performance.now();
     const h = (b - a) / n;
@@ -46,10 +42,7 @@ function trapezoidalRule(func, a, b, n) {
     };
 }
 
-/**
- * Simpson's Rule implementation.
- */
-function simpsonsRule(func, a, b, n) {
+function simpsonsOneThirdRule(func, a, b, n) {
     const startTime = performance.now();
     const intervals = n % 2 === 0 ? n : n + 1;
     const h = (b - a) / intervals;
@@ -60,15 +53,35 @@ function simpsonsRule(func, a, b, n) {
     }
     const result = (h / 3) * sum;
     return { 
-        method: "Simpson's Rule", 
+        method: "Simpson's 1/3 Rule", 
         result, 
         intervals, 
         executionTime: performance.now() - startTime 
     };
 }
 
-
-// --- Visualization Data Generators ---
+function simpsonsThreeEighthsRule(func, a, b, n) {
+    const startTime = performance.now();
+    const intervals = n % 3 === 0 ? n : n + (3 - (n % 3));
+    const h = (b - a) / intervals;
+    let sum = func(a) + func(b);
+    
+    for (let i = 1; i < intervals; i++) {
+        const x = a + i * h;
+        if (i % 3 === 0) {
+            sum += 2 * func(x);
+        } else {
+            sum += 3 * func(x);
+        }
+    }
+    const result = (3 * h / 8) * sum;
+    return { 
+        method: "Simpson's 3/8 Rule", 
+        result, 
+        intervals, 
+        executionTime: performance.now() - startTime 
+    };
+}
 
 function getTrapezoidalViz(func, a, b, n) {
     const h = (b - a) / n;
@@ -85,7 +98,7 @@ function getTrapezoidalViz(func, a, b, n) {
     return { method: 'Trapezoidal Rule', points, areas };
 }
 
-function getSimpsonsViz(func, a, b, n) {
+function getSimpsonsOneThirdViz(func, a, b, n) {
     const intervals = n % 2 === 0 ? n : n + 1;
     const h = (b - a) / intervals;
     const areas = [];
@@ -97,14 +110,35 @@ function getSimpsonsViz(func, a, b, n) {
             const x1 = x;
             const x2 = a + (i + 2) * h;
             const xm = a + (i + 1) * h;
-            areas.push({ x1, x2, y: (func(x1) + 4 * func(xm) + func(x2)) / 6, type: 'simpson' });
+            areas.push({ x1, x2, y: (func(x1) + 4 * func(xm) + func(x2)) / 6, type: 'simpson13' });
         }
     }
-    return { method: "Simpson's Rule", points, areas };
+    return { method: "Simpson's 1/3 Rule", points, areas };
 }
 
-
-// --- UI State & Elements ---
+function getSimpsonsThreeEighthsViz(func, a, b, n) {
+    const intervals = n % 3 === 0 ? n : n + (3 - (n % 3));
+    const h = (b - a) / intervals;
+    const areas = [];
+    const points = [];
+    for (let i = 0; i <= intervals; i++) {
+        const x = a + i * h;
+        points.push({ x, y: func(x) });
+        if (i < intervals && i % 3 === 0) {
+            const x1 = x;
+            const x2 = a + (i + 3) * h;
+            const xm1 = a + (i + 1) * h;
+            const xm2 = a + (i + 2) * h;
+            areas.push({ 
+                x1, 
+                x2, 
+                y: (func(x1) + 3 * func(xm1) + 3 * func(xm2) + func(x2)) / 8, 
+                type: 'simpson38' 
+            });
+        }
+    }
+    return { method: "Simpson's 3/8 Rule", points, areas };
+}
 
 let state = {
     functionExpr: 'x**2',
@@ -122,7 +156,8 @@ const elements = {
     upperBound: document.getElementById('upperBound'),
     intervalsInput: document.getElementById('intervalsInput'),
     methodTrapezoidal: document.getElementById('methodTrapezoidal'),
-    methodSimpson: document.getElementById('methodSimpson'),
+    methodSimpson13: document.getElementById('methodSimpson13'),
+    methodSimpson38: document.getElementById('methodSimpson38'),
     calculateBtn: document.getElementById('calculateBtn'),
     resetBtn: document.getElementById('resetBtn'),
     errorDisplay: document.getElementById('errorDisplay'),
@@ -141,8 +176,6 @@ const elements = {
     detailedTimeValue: document.getElementById('detailedTimeValue'),
     exportBtn: document.getElementById('exportBtn')
 };
-
-// --- Rendering ---
 
 function drawVisualization(method) {
     const viz = state.visualizations.get(method);
@@ -172,11 +205,9 @@ function drawVisualization(method) {
     const offsetX = padding;
     const offsetY = height - padding;
 
-    // Background
     ctx.fillStyle = '#1a2332';
     ctx.fillRect(0, 0, width, height);
 
-    // Grid
     ctx.strokeStyle = 'rgba(102, 204, 255, 0.1)';
     ctx.lineWidth = 1;
     for (let i = 0; i <= 10; i++) {
@@ -186,13 +217,11 @@ function drawVisualization(method) {
         ctx.beginPath(); ctx.moveTo(offsetX, y); ctx.lineTo(offsetX + (width - 2 * padding), y); ctx.stroke();
     }
 
-    // Axes
     ctx.strokeStyle = '#66ccff';
     ctx.lineWidth = 2;
     ctx.beginPath(); ctx.moveTo(offsetX, offsetY); ctx.lineTo(width - padding, offsetY); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(offsetX, offsetY); ctx.lineTo(offsetX, padding); ctx.stroke();
 
-    // Labels
     ctx.fillStyle = '#b8c5d6';
     ctx.font = '12px monospace';
     ctx.textAlign = 'center';
@@ -204,10 +233,10 @@ function drawVisualization(method) {
 
     const colors = {
         'trapezoidal': { fill: 'rgba(102, 204, 255, 0.3)', stroke: '#66ccff' },
-        'simpson': { fill: 'rgba(102, 255, 153, 0.3)', stroke: '#66ff99' }
+        'simpson13': { fill: 'rgba(102, 255, 153, 0.3)', stroke: '#66ff99' },
+        'simpson38': { fill: 'rgba(255, 153, 102, 0.3)', stroke: '#ff9966' }
     }[method];
 
-    // Areas
     ctx.fillStyle = colors.fill;
     ctx.strokeStyle = colors.stroke;
     ctx.lineWidth = 1;
@@ -221,7 +250,7 @@ function drawVisualization(method) {
             const y2 = offsetY - (viz.points[i+1].y - minY) * yScale;
             ctx.beginPath(); ctx.moveTo(x1, offsetY); ctx.lineTo(x1, y1); ctx.lineTo(x2, y2); ctx.lineTo(x2, offsetY); ctx.closePath(); ctx.fill(); ctx.stroke();
         }
-    } else if (method === 'simpson') {
+    } else if (method === 'simpson13') {
         for (let i = 0; i < viz.areas.length; i++) {
             const a = viz.areas[i];
             const x1 = offsetX + (a.x1 - state.lowerBound) * xScale;
@@ -233,9 +262,23 @@ function drawVisualization(method) {
             ctx.quadraticCurveTo((x1 + x2) / 2, ym, x2, y2);
             ctx.lineTo(x2, offsetY); ctx.closePath(); ctx.fill(); ctx.stroke();
         }
+    } else if (method === 'simpson38') {
+        for (let i = 0; i < viz.areas.length; i++) {
+            const a = viz.areas[i];
+            const x1 = offsetX + (a.x1 - state.lowerBound) * xScale;
+            const x2 = offsetX + (a.x2 - state.lowerBound) * xScale;
+            const y1 = offsetY - (viz.points[i*3].y - minY) * yScale;
+            const ym1 = offsetY - (viz.points[i*3+1].y - minY) * yScale;
+            const ym2 = offsetY - (viz.points[i*3+2].y - minY) * yScale;
+            const y2 = offsetY - (viz.points[i*3+3].y - minY) * yScale;
+            ctx.beginPath(); ctx.moveTo(x1, offsetY); ctx.lineTo(x1, y1);
+            const cp1x = x1 + (x2 - x1) / 3;
+            const cp2x = x1 + 2 * (x2 - x1) / 3;
+            ctx.bezierCurveTo(cp1x, ym1, cp2x, ym2, x2, y2);
+            ctx.lineTo(x2, offsetY); ctx.closePath(); ctx.fill(); ctx.stroke();
+        }
     }
 
-    // Function Curve
     ctx.strokeStyle = '#ffa500';
     ctx.lineWidth = 2;
     ctx.beginPath();
@@ -257,7 +300,9 @@ function updateUI() {
         state.visualizations.forEach((viz, method) => {
             const btn = document.createElement('button');
             btn.className = `px-4 py-2 text-sm font-medium transition-colors ${state.activeVizMethod === method ? 'tab-active' : 'text-muted-foreground hover:text-foreground'}`;
-            btn.textContent = method === 'trapezoidal' ? 'Trapezoidal' : "Simpson's";
+            btn.textContent = method === 'trapezoidal' ? 'Trapezoidal' : 
+                              method === 'simpson13' ? "Simpson's 1/3" : 
+                              method === 'simpson38' ? "Simpson's 3/8" : "Simpson's";
             btn.onclick = () => {
                 state.activeVizMethod = method;
                 updateUI();
@@ -304,8 +349,6 @@ function showDetailedResult(method) {
     elements.detailedTimeValue.textContent = res.executionTime.toFixed(2) + 'ms';
 }
 
-// --- Actions ---
-
 function calculate() {
     elements.errorDisplay.classList.add('hidden');
     state.results.clear();
@@ -323,15 +366,19 @@ function calculate() {
 
     try {
         const f = (x) => evaluateFunction(expr, x);
-        f(a); // Test evaluation
+        f(a);
 
         if (elements.methodTrapezoidal.checked) {
             state.results.set('trapezoidal', trapezoidalRule(f, a, b, n));
             state.visualizations.set('trapezoidal', getTrapezoidalViz(f, a, b, n));
         }
-        if (elements.methodSimpson.checked) {
-            state.results.set('simpson', simpsonsRule(f, a, b, n));
-            state.visualizations.set('simpson', getSimpsonsViz(f, a, b, n));
+        if (elements.methodSimpson13.checked) {
+            state.results.set('simpson13', simpsonsOneThirdRule(f, a, b, n));
+            state.visualizations.set('simpson13', getSimpsonsOneThirdViz(f, a, b, n));
+        }
+        if (elements.methodSimpson38.checked) {
+            state.results.set('simpson38', simpsonsThreeEighthsRule(f, a, b, n));
+            state.visualizations.set('simpson38', getSimpsonsThreeEighthsViz(f, a, b, n));
         }
 
         if (state.results.size === 0) {
@@ -352,7 +399,8 @@ function reset() {
     elements.upperBound.value = '1';
     elements.intervalsInput.value = '10';
     elements.methodTrapezoidal.checked = true;
-    elements.methodSimpson.checked = true;
+    elements.methodSimpson13.checked = true;
+    elements.methodSimpson38.checked = true;
     state.results.clear();
     state.visualizations.clear();
     elements.detailedResultCard.classList.add('hidden');
@@ -379,7 +427,9 @@ window.analyzeConvergence = function(method) {
         const iter = Math.pow(2, i + 2);
         let res;
         if (method === 'trapezoidal') res = trapezoidalRule(f, a, b, iter).result;
-        else res = simpsonsRule(f, a, b, iter).result;
+        else if (method === 'simpson13') res = simpsonsOneThirdRule(f, a, b, iter).result;
+        else if (method === 'simpson38') res = simpsonsThreeEighthsRule(f, a, b, iter).result;
+        else res = simpsonsOneThirdRule(f, a, b, iter).result;
         data.push({ x: iter, y: res });
     }
 
@@ -396,7 +446,12 @@ window.analyzeConvergence = function(method) {
     const xScale = (canvas.width - 2 * padding) / (data.length - 1);
     const yScale = (canvas.height - 2 * padding) / (maxY - minY);
 
-    ctx.strokeStyle = method === 'trapezoidal' ? '#66ccff' : '#66ff99';
+    const convergenceColors = {
+        'trapezoidal': '#66ccff',
+        'simpson13': '#66ff99',
+        'simpson38': '#ff9966'
+    };
+    ctx.strokeStyle = convergenceColors[method] || '#66ff99';
     ctx.lineWidth = 2;
     ctx.beginPath();
     data.forEach((d, i) => {
@@ -433,11 +488,8 @@ function exportResults() {
     URL.revokeObjectURL(url);
 }
 
-// --- Event Listeners ---
-
 elements.calculateBtn.onclick = calculate;
 elements.resetBtn.onclick = reset;
 elements.exportBtn.onclick = exportResults;
 
-// Initial UI
 updateUI();
